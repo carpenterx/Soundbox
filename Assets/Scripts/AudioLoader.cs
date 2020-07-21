@@ -47,7 +47,8 @@ public class AudioLoader : MonoBehaviour
     private SoundList soundList = new SoundList();
 
     private AudioSource audioSource;
-    private List<AudioClip> audioClips = new List<AudioClip>();
+    //private List<AudioClip> audioClips = new List<AudioClip>();
+    private AudioClip[] audioClips = new AudioClip[12];
     private int playIndex = 0;
 
     private int addIndex = -1;
@@ -92,12 +93,14 @@ public class AudioLoader : MonoBehaviour
             {
                 RefreshAddMode();
                 HideEditMode();
-                /*if (!isEditMode)
+                if (!isEditMode)
                 {
                     SetupPlayMode();
                 }
-                audioClips = new List<AudioClip>();
+                /*audioClips = new List<AudioClip>();
                 StartCoroutine(GetAudioClips());*/
+                audioClips = new AudioClip[12];
+                StartCoroutine(GetAudioClips());
                 HideLoadPanel();
             }
         }
@@ -206,9 +209,7 @@ public class AudioLoader : MonoBehaviour
             Button button = Instantiate(addButton, addButtonsHolder.transform);
             //button.transform.SetParent(addButtonsHolder.transform, false);
 
-            //Debug.Log("OLD (" + button.transform.position.x + ", " + button.transform.position.y + ")");
             button.transform.localPosition = position;
-            //Debug.Log("NEW (" + button.transform.position.x + ", " + button.transform.position.y + ")");
             // tile index starts at 1
             var index = i + 1;
             button.onClick.AddListener(delegate { AddSoundAtTilePosition(index); });
@@ -236,8 +237,8 @@ public class AudioLoader : MonoBehaviour
         if (isEditMode)
         {
             // loading all the sounds each time the mode changes is very inefficient
-            audioClips = new List<AudioClip>();
-            StartCoroutine(GetAudioClips());
+            //audioClips = new List<AudioClip>();
+            //StartCoroutine(GetAudioClips());
             SetupPlayMode();
             addButtonsHolder.SetActive(false);
             buttonsHolder.SetActive(true);
@@ -248,9 +249,9 @@ public class AudioLoader : MonoBehaviour
         }
     }
 
-    private IEnumerator GetAudioClips(int startIndex = 0)
+    private IEnumerator GetAudioClips()
     {
-        int index = startIndex;
+        int index = 0;
         while(index < soundList.Sounds.Count)
         {
             string path = Path.Combine(filePrefix + soundList.Sounds[index].SoundPath);
@@ -261,14 +262,35 @@ public class AudioLoader : MonoBehaviour
 
                 if (request.error != null)
                 {
-                    Debug.Log(request.error);
+                    //Debug.Log(request.error);
+                    audioClips[index] = null;
                 }
                 else
                 {
-                    audioClips.Add(DownloadHandlerAudioClip.GetContent(request));
+                    audioClips[index] = DownloadHandlerAudioClip.GetContent(request);
                 }
 
                 index++;
+            }
+        }
+    }
+
+    private IEnumerator GetAudioClip(int index)
+    {
+        string path = Path.Combine(filePrefix + soundList.Sounds[index].SoundPath);
+        AudioType audioType = GetAudioType(path);
+        using (UnityWebRequest request = UnityWebRequestMultimedia.GetAudioClip(path, audioType))
+        {
+            yield return request.SendWebRequest();
+
+            if (request.error != null)
+            {
+                //Debug.Log(request.error);
+                audioClips[index] = null;
+            }
+            else
+            {
+                audioClips[index] = DownloadHandlerAudioClip.GetContent(request);
             }
         }
     }
@@ -303,7 +325,7 @@ public class AudioLoader : MonoBehaviour
         }
         audioSource.PlayOneShot(audioClips[playIndex]);
         playIndex++;
-        if(playIndex == audioClips.Count)
+        if(playIndex == audioClips.Length)
         {
             playIndex = 0;
         }
@@ -468,10 +490,12 @@ public class AudioLoader : MonoBehaviour
                 // the tile position remains the same since they were overlapping
                 soundList.Sounds[tileIndex].Name = songName;
                 soundList.Sounds[tileIndex].SoundPath = songPath;
+                StartCoroutine(GetAudioClip(tileIndex));
             }
             else
             {
                 soundList.Sounds.Add(new ExternalSound(songName, addIndex, songPath));
+                StartCoroutine(GetAudioClip(soundList.Sounds.Count-1));
             }
             addButtonClicked.GetComponentInChildren<Text>().text = songName;
             HideAddPanel();
