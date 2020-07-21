@@ -488,9 +488,15 @@ public class AudioLoader : MonoBehaviour
             if(tileIndex != -1)
             {
                 // the tile position remains the same since they were overlapping
+
+                // if the sound path is the same, the sound doesn't need to be updated, just the song name
+                // the song name gets updated every time
                 soundList.Sounds[tileIndex].Name = songName;
-                soundList.Sounds[tileIndex].SoundPath = songPath;
-                StartCoroutine(GetAudioClip(tileIndex));
+                if (songPath != soundList.Sounds[tileIndex].SoundPath)
+                {
+                    soundList.Sounds[tileIndex].SoundPath = songPath;
+                    StartCoroutine(GetAudioClip(tileIndex));
+                }
             }
             else
             {
