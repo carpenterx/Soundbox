@@ -373,19 +373,7 @@ public class AudioLoader : MonoBehaviour
             songNameInput.text = "";
             songPathInput.text = "";
         }
-        StartCoroutine(MoveInputTextToEnd());
         ShowAddMenu();
-    }
-
-    private IEnumerator MoveInputTextToEnd()
-    {
-        yield return new WaitForEndOfFrame();
-        //Debug.Log(songPathInput.caretPosition);
-        songPathInput.caretPosition = songPathInput.text.Length;
-        
-        songPathInput.MoveTextEnd(true);
-        songPathInput.ForceLabelUpdate();
-        //Debug.Log(songPathInput.caretPosition);
     }
 
     public void ShowAddMenu()
