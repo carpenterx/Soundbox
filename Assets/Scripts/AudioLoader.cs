@@ -9,10 +9,8 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.Networking;
 using UnityEngine.UI;
-using UnityEngine.UIElements;
 using Button = UnityEngine.UI.Button;
 using Image = UnityEngine.UI.Image;
-//using Application = UnityEngine.Application;
 
 public class AudioLoader : MonoBehaviour
 {
@@ -31,9 +29,6 @@ public class AudioLoader : MonoBehaviour
     public Image coverPrefab;
     public Button addButton;
 
-    //public Button editModeButton;
-    //public Button playModeButton;
-
     public ScrollRect loadScrollView;
     public Button loadButtonPrefab;
 
@@ -42,12 +37,10 @@ public class AudioLoader : MonoBehaviour
     public Button saveButtonPrefab;
 
     private static readonly string filePrefix = "file://";
-    //private static readonly string defaultSoundListFileName = "tests";
     private static readonly string defaultSoundListExtension = ".json";
     private SoundList soundList = new SoundList();
 
     private AudioSource audioSource;
-    //private List<AudioClip> audioClips = new List<AudioClip>();
     private AudioClip[] audioClips = new AudioClip[12];
     private int playIndex = 0;
 
@@ -97,8 +90,6 @@ public class AudioLoader : MonoBehaviour
                 {
                     SetupPlayMode();
                 }
-                /*audioClips = new List<AudioClip>();
-                StartCoroutine(GetAudioClips());*/
                 audioClips = new AudioClip[12];
                 StartCoroutine(GetAudioClips());
                 HideLoadPanel();
@@ -197,7 +188,6 @@ public class AudioLoader : MonoBehaviour
         int tileSize = 170;
         int xOffset = 10;
         int yOffset = 50;
-        //int left = addButtonsHolder.
         for (int i = 0; i < 12; i++)
         {
             int row = i / columns;
@@ -207,7 +197,6 @@ public class AudioLoader : MonoBehaviour
             Vector2 position = new Vector2(xPos, yPos);
 
             Button button = Instantiate(addButton, addButtonsHolder.transform);
-            //button.transform.SetParent(addButtonsHolder.transform, false);
 
             button.transform.localPosition = position;
             // tile index starts at 1
@@ -225,8 +214,6 @@ public class AudioLoader : MonoBehaviour
             addButtonsHolder.SetActive(true);
             buttonsHolder.SetActive(false);
             coversHolder.SetActive(false);
-            //editModeButton.gameObject.SetActive(false);
-            //playModeButton.gameObject.SetActive(true);
             isEditMode = true;
         }
     }
@@ -236,15 +223,10 @@ public class AudioLoader : MonoBehaviour
         // don't start play mode if we are already in play mode
         if (isEditMode)
         {
-            // loading all the sounds each time the mode changes is very inefficient
-            //audioClips = new List<AudioClip>();
-            //StartCoroutine(GetAudioClips());
             SetupPlayMode();
             addButtonsHolder.SetActive(false);
             buttonsHolder.SetActive(true);
             coversHolder.SetActive(true);
-            //editModeButton.gameObject.SetActive(true);
-            //playModeButton.gameObject.SetActive(false);
             isEditMode = false;
         }
     }
@@ -262,7 +244,6 @@ public class AudioLoader : MonoBehaviour
 
                 if (request.error != null)
                 {
-                    //Debug.Log(request.error);
                     audioClips[index] = null;
                 }
                 else
@@ -285,7 +266,6 @@ public class AudioLoader : MonoBehaviour
 
             if (request.error != null)
             {
-                //Debug.Log(request.error);
                 audioClips[index] = null;
             }
             else
@@ -299,7 +279,6 @@ public class AudioLoader : MonoBehaviour
     {
         string extension = Path.GetExtension(path).ToLower();
         extension = extension.Replace(".", "");
-        //Debug.Log(extension);
         switch(extension)
         {
             case "ogg":
@@ -349,7 +328,6 @@ public class AudioLoader : MonoBehaviour
         addButtonsHolder.SetActive(false);
         int maxRows = 4;
         int columns = 3;
-        //int[,] tilesMatrix = new int[3, 4];
         int tileSize = 170;
         int xOffset = 10;
         int yOffset = 50;
@@ -384,7 +362,6 @@ public class AudioLoader : MonoBehaviour
         addIndex = index;
         addButtonClicked = EventSystem.current.currentSelectedGameObject;
         int tileIndex = soundList.Sounds.FindIndex(s => s.TilePosition == index);
-        //Debug.Log(addIndex);
         // Update text boxes to display the sound name and path
         if (tileIndex != -1)
         {
@@ -396,8 +373,6 @@ public class AudioLoader : MonoBehaviour
             songNameInput.text = "";
             songPathInput.text = "";
         }
-        //songPathInput.caretPosition = songPathInput.text.Length;
-        //songPathInput.ForceLabelUpdate();
         StartCoroutine(MoveInputTextToEnd());
         ShowAddMenu();
     }
@@ -469,19 +444,6 @@ public class AudioLoader : MonoBehaviour
         }
     }
 
-    /*public void BrowseToSound()
-    {
-        string path = EditorUtility.OpenFilePanel("Select song", "C:/Users/jorda/Desktop/announcer", "ogg");
-        if (path.Length != 0)
-        {
-            songNameInput.text = Path.GetFileNameWithoutExtension(path);
-            songPathInput.text = path;
-            //songPathInput.caretPosition = songPathInput.text.Length;
-            //songPathInput.ForceLabelUpdate();
-            StartCoroutine(MoveInputTextToEnd());
-        }
-    }*/
-
     public void AddSound()
     {
         string songName = songNameInput.text;
@@ -529,8 +491,6 @@ public class AudioLoader : MonoBehaviour
 
     public void StarList()
     {
-        //string soundListPath = Path.Combine(Application.persistentDataPath, selectedLoadFileName + defaultSoundListExtension);
-        
         if (PlayerPrefs.HasKey(STARRED_LIST_KEY))
         {
             if(selectedLoadFileName == PlayerPrefs.GetString(STARRED_LIST_KEY))
