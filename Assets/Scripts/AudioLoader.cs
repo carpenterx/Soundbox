@@ -323,7 +323,10 @@ public class AudioLoader : MonoBehaviour
         {
             audioSource.Stop();
         }
-        audioSource.PlayOneShot(audioClips[playIndex]);
+        if(audioClips[playIndex] != null)
+        {
+            audioSource.PlayOneShot(audioClips[playIndex]);
+        }
         playIndex++;
         if(playIndex == audioClips.Length)
         {
@@ -436,7 +439,10 @@ public class AudioLoader : MonoBehaviour
         {
             audioSource.Stop();
         }
-        audioSource.PlayOneShot(audioClips[index]);
+        if(audioClips[index] != null)
+        {
+            audioSource.PlayOneShot(audioClips[index]);
+        }
     }
 
     public void SaveSoundList()
