@@ -485,6 +485,7 @@ public class AudioLoader : MonoBehaviour
         if (tileIndex != -1)
         {
             soundList.Sounds.RemoveAt(tileIndex);
+            audioClips[tileIndex] = null;
             addButtonClicked.GetComponentInChildren<Text>().text = "";
         }
     }
