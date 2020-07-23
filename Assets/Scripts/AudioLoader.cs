@@ -19,6 +19,7 @@ public class AudioLoader : MonoBehaviour
     public GameObject loadPanel;
     public GameObject savePanel;
     public GameObject browsePanel;
+    public GameObject aboutPanel;
 
     public Button buttonPrefab;
     public Image coverPrefab;
@@ -54,6 +55,7 @@ public class AudioLoader : MonoBehaviour
         HideBrowseMenu();
         HideLoadPanel();
         HideSavePanel();
+        HideAboutPanel();
         SetupEditMode();
 
         LoadStarredList();
@@ -68,6 +70,16 @@ public class AudioLoader : MonoBehaviour
     {
         RefreshSaveableFiles();
         savePanel.SetActive(true);
+    }
+
+    public void HideAboutPanel()
+    {
+        aboutPanel.SetActive(false);
+    }
+
+    public void ShowAboutPanel()
+    {
+        aboutPanel.SetActive(true);
     }
 
     public void LoadSoundList()
