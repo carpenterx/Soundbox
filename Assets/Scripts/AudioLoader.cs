@@ -26,11 +26,12 @@ public class AudioLoader : MonoBehaviour
     public Button addButton;
 
     public ScrollRect loadScrollView;
-    public Button loadButtonPrefab;
+    //public Button loadButtonPrefab;
+    public Toggle loadTogglePrefab;
 
     public InputField saveListNameInput;
     public ScrollRect saveScrollView;
-    public Button saveButtonPrefab;
+    //public Button saveButtonPrefab;
 
     private static readonly string filePrefix = "file://";
     private static readonly string defaultSoundListExtension = ".json";
@@ -126,12 +127,28 @@ public class AudioLoader : MonoBehaviour
             string[] soundFiles = Directory.GetFiles(Application.persistentDataPath, "*" + defaultSoundListExtension);
             for (int i = 0; i < soundFiles.Length; i++)
             {
-                Button button = Instantiate(loadButtonPrefab);
-                button.transform.SetParent(loadScrollView.content.transform, false);
+                Toggle toggle = Instantiate(loadTogglePrefab);
+                toggle.transform.SetParent(loadScrollView.content.transform, false);
                 string fileName = Path.GetFileNameWithoutExtension(soundFiles[i]);
-                button.GetComponent<Button>().onClick.AddListener(delegate { SetCurrentLoadName(fileName); });
-                button.GetComponentInChildren<Text>().text = fileName;
+                EventTrigger trigger = toggle.GetComponent<EventTrigger>();
+                EventTrigger.Entry entry = new EventTrigger.Entry();
+                entry.eventID = EventTriggerType.PointerClick;
+                var index = i;
+                entry.callback.AddListener((data) => { LoadFileClickHandler((PointerEventData)data, fileName, index); });
+                trigger.triggers.Add(entry);
+                toggle.GetComponentInChildren<Text>().text = fileName;
             }
+        }
+    }
+
+    public void LoadFileClickHandler(PointerEventData data, string fileName, int index)
+    {
+        selectedLoadFileName = fileName;
+
+        Toggle[] toggles = loadScrollView.GetComponentsInChildren<Toggle>();
+        for (int i = 0; i < toggles.Length; i++)
+        {
+            toggles[i].isOn = (i == index);
         }
     }
 
@@ -146,29 +163,30 @@ public class AudioLoader : MonoBehaviour
             string[] soundFiles = Directory.GetFiles(Application.persistentDataPath, "*" + defaultSoundListExtension);
             for (int i = 0; i < soundFiles.Length; i++)
             {
-                Button button = Instantiate(saveButtonPrefab);
-                button.transform.SetParent(saveScrollView.content.transform, false);
+                Toggle toggle = Instantiate(loadTogglePrefab);
+                toggle.transform.SetParent(saveScrollView.content.transform, false);
                 string fileName = Path.GetFileNameWithoutExtension(soundFiles[i]);
-                button.GetComponent<Button>().onClick.AddListener(delegate { SetCurrentSaveName(fileName); });
-                button.GetComponentInChildren<Text>().text = fileName;
+                EventTrigger trigger = toggle.GetComponent<EventTrigger>();
+                EventTrigger.Entry entry = new EventTrigger.Entry();
+                entry.eventID = EventTriggerType.PointerClick;
+                var index = i;
+                entry.callback.AddListener((data) => { SaveFileClickHandler((PointerEventData)data, fileName, index); });
+                trigger.triggers.Add(entry);
+                toggle.GetComponentInChildren<Text>().text = fileName;
             }
         }
     }
 
-    private void SetCurrentLoadName(string name)
+    public void SaveFileClickHandler(PointerEventData data, string fileName, int index)
     {
-        selectedLoadFileName = name;
-    }
+        selectedSaveFileName = fileName;
+        saveListNameInput.text = fileName;
 
-    private void SetCurrentSaveName(string name)
-    {
-        UpdateSelectedSaveName(name);
-        saveListNameInput.text = selectedSaveFileName;
-    }
-
-    public void UpdateSelectedSaveName(string name)
-    {
-        selectedSaveFileName = name;
+        Toggle[] toggles = saveScrollView.GetComponentsInChildren<Toggle>();
+        for (int i = 0; i < toggles.Length; i++)
+        {
+            toggles[i].isOn = (i == index);
+        }
     }
 
     private void RefreshAddMode()
