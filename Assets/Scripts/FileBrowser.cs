@@ -11,7 +11,8 @@ public class FileBrowser : MonoBehaviour
     public string extensionFilter = "";
     public ScrollRect fileScroll;
     public InputField pathInput;
-    public Button filePrefab;
+    //public Button filePrefab;
+    public Toggle fileTogglePrefab;
     public Sprite folderIcon;
     public Sprite fileIcon;
     public GameObject fileBrowserHolder;
@@ -67,11 +68,13 @@ public class FileBrowser : MonoBehaviour
             ClearFilesDisplay();
 
             string[] subdirectories = Directory.GetDirectories(defaultPath);
-            foreach (string subdirectory in subdirectories)
+            //int index = 0
+            for (int i = 0; i < subdirectories.Length; i++)
             {
-                if(!FileHidden(subdirectory))
+                if (!FileHidden(subdirectories[i]))
                 {
-                    InstantiateFilePrefab(subdirectory);
+                    var ind = i;
+                    InstantiateFilePrefab(subdirectories[i], ind);
                 }
             }
 
@@ -81,14 +84,16 @@ public class FileBrowser : MonoBehaviour
             {
                 files = files.Where(f => extensionFilter.Contains("|" + Path.GetExtension(f).ToLower() + "|"));
             }
-            
+
             //var files = Directory.EnumerateFiles(defaultPath, "*.*").Where(f => extensionFilter.Contains(Path.GetExtension(f).ToLower()));
+            int index = 0;
             foreach (string file in files)
             {
                 if (!FileHidden(file))
                 {
-                    InstantiateFilePrefab(file, true);
+                    InstantiateFilePrefab(file, index, true);
                 }
+                index++;
             }
         }
     }
@@ -136,9 +141,10 @@ public class FileBrowser : MonoBehaviour
         }
     }
 
-    private void InstantiateFilePrefab(string path, bool isFile = false)
+    private void InstantiateFilePrefab(string path, int fileIndex, bool isFile = false)
     {
-        Button button = Instantiate(filePrefab);
+        //Button button = Instantiate(filePrefab);
+        Toggle toggle = Instantiate(fileTogglePrefab);
 
         string fileName = Path.GetFileName(path);
         if(String.IsNullOrEmpty(fileName))
@@ -155,13 +161,13 @@ public class FileBrowser : MonoBehaviour
             }
         }
 
-        EventTrigger trigger = button.GetComponent<EventTrigger>();
+        EventTrigger trigger = toggle.GetComponent<EventTrigger>();
 
         EventTrigger.Entry entry = new EventTrigger.Entry
         {
             eventID = EventTriggerType.PointerClick
         };
-        entry.callback.AddListener((data) => { OnPointerClickDelegate((PointerEventData)data, path); });
+        entry.callback.AddListener((data) => { OnPointerClickDelegate((PointerEventData)data, path, fileIndex); });
         trigger.triggers.Add(entry);
 
         EventTrigger.Entry entryScroll = new EventTrigger.Entry
@@ -171,20 +177,25 @@ public class FileBrowser : MonoBehaviour
         entryScroll.callback.AddListener((data) => { fileScroll.OnScroll((PointerEventData)data); });
         trigger.triggers.Add(entryScroll);
 
-        button.GetComponentInChildren<Text>().text = fileName;
+        toggle.GetComponentInChildren<Text>().text = fileName;
         if (isFile)
         {
-            button.GetComponentsInChildren<Image>()[1].sprite = fileIcon;
+            toggle.GetComponentsInChildren<Image>()[2].sprite = fileIcon;
         }
 
-        button.transform.SetParent(fileScroll.content.transform, false);
+        toggle.transform.SetParent(fileScroll.content.transform, false);
     }
 
-    public void OnPointerClickDelegate(PointerEventData eventData, string fileName)
+    public void OnPointerClickDelegate(PointerEventData eventData, string fileName, int index)
     {
         if (eventData.clickCount == 1)
         {
             currentFileSelection = fileName;
+            Toggle[] toggles = fileScroll.GetComponentsInChildren<Toggle>();
+            for (int i = 0; i < toggles.Length; i++)
+            {
+                toggles[i].isOn = (i == index);
+            }
         }
         else if (eventData.clickCount == 2)
         {
@@ -271,14 +282,17 @@ public class FileBrowser : MonoBehaviour
     {
         ClearFilesDisplay();
         UpdateCurrentFolderDisplay("");
-
-        InstantiateFilePrefab(Environment.GetFolderPath(Environment.SpecialFolder.MyMusic), false);
-        InstantiateFilePrefab(Environment.GetFolderPath(Environment.SpecialFolder.MyVideos), false);
+        int ind = 0;
+        InstantiateFilePrefab(Environment.GetFolderPath(Environment.SpecialFolder.MyMusic), ind, false);
+        ind++;
+        InstantiateFilePrefab(Environment.GetFolderPath(Environment.SpecialFolder.MyVideos), ind, false);
+        ind++;
 
         DriveInfo[] allDrives = DriveInfo.GetDrives();
         foreach (DriveInfo d in allDrives)
         {
-            InstantiateFilePrefab(d.Name, false);
+            InstantiateFilePrefab(d.Name, ind, false);
+            ind++;
         }
     }
 
