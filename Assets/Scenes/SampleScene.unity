@@ -6400,15 +6400,19 @@ MonoBehaviour:
 
 
     Using
-    Micon icon set (https://iconset.io/set/micon)
-
-    by Arshen (https://arshen.ir)
+    Roboto font
 
 
-    Background
-    image by
+    Using Micon icon set (https://iconset.io/set/micon)
 
-    Jess Vide from Pexels (https://www.pexels.com/photo/aerial-view-of-people-swimming-on-sea-4327786/)'
+    by
+    Arshen (https://arshen.ir)
+
+
+    Background image by
+
+    Jess Vide from Pexels
+    (https://www.pexels.com/photo/aerial-view-of-people-swimming-on-sea-4327786/)'
 --- !u!222 &563860119
 CanvasRenderer:
   m_ObjectHideFlags: 0
